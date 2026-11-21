@@ -51,7 +51,7 @@ class Webhook:
         payload: bytes | str,
         headers: Mapping[str, str],
         secret_hash: str,
-        allow_legacy_verif_hash: bool = True,
+        allow_legacy_verif_hash: bool = False,
     ) -> FlutterwaveObject:
         normalized_headers = {key.lower(): value for key, value in headers.items()}
         signature = normalized_headers.get(cls.SIGNATURE_HEADER)
