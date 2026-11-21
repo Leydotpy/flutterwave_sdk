@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import re
 from dataclasses import dataclass, field
 from typing import Mapping
 
@@ -22,6 +23,8 @@ class RequestOptions:
         headers: dict[str, str] = dict(self.headers)
         if self.idempotency_key:
             _validate_header_length("X-Idempotency-Key", self.idempotency_key)
+            if not re.fullmatch(r"[A-Za-z0-9]+", self.idempotency_key):
+                raise InvalidRequestOptionsError("X-Idempotency-Key must be alphanumeric")
             headers["X-Idempotency-Key"] = self.idempotency_key
         if self.trace_id:
             _validate_header_length("X-Trace-Id", self.trace_id)

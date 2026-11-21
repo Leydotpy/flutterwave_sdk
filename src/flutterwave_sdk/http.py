@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any, Mapping
 
 import httpx
+import simplejson as json_codec
 
 from ._version import __version__
 from .auth import OAuthTokenManager
@@ -73,17 +74,17 @@ class APIClient:
                     method,
                     url,
                     params=params,
-                    json=json,
+                    content=json_codec.dumps(json, use_decimal=True) if json is not None else None,
                     headers=headers,
                 )
             except httpx.HTTPError as exc:
                 last_exc = exc
-                if attempt < self.max_network_retries:
+                if attempt < self.max_network_retries and self._retry_permitted(method, request_options):
                     self._sleep_before_retry(attempt)
                     continue
                 raise APIConnectionError("Unable to connect to Flutterwave API") from exc
 
-            if self._should_retry(response, attempt):
+            if self._should_retry(response, attempt) and self._retry_permitted(method, request_options):
                 self._sleep_before_retry(attempt, response=response)
                 continue
 
@@ -133,6 +134,10 @@ class APIClient:
         if response.status_code in {409, 429}:
             return True
         return 500 <= response.status_code < 600
+
+    @staticmethod
+    def _retry_permitted(method: str, options: RequestOptions) -> bool:
+        return method.upper() in {"GET", "HEAD", "OPTIONS"} or bool(options.idempotency_key)
 
     def _sleep_before_retry(self, attempt: int, response: httpx.Response | None = None) -> None:
         retry_after = None

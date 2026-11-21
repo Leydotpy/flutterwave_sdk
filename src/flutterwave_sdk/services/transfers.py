@@ -127,4 +127,4 @@ class TransferService(APIService):
         options: RequestOptions | None = None,
         **params: Any,
     ) -> FlutterwaveResponse:
-        return self._post(f"/transfers/{transfer_id}/retry", body=params, options=options)
+        return self._post(f"/transfers/{transfer_id}/retries", body=params, options=options)

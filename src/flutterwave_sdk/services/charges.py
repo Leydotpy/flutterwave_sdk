@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+from decimal import Decimal
 from typing import Any, Mapping
 
 from ..objects import FlutterwaveResponse, ListObject
@@ -36,7 +37,7 @@ class ChargeService(APIService):
     def create(
         self,
         *,
-        amount: float,
+        amount: Decimal | float | int | str,
         currency: str,
         reference: str,
         customer_id: str,
