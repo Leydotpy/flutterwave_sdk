@@ -6,6 +6,7 @@ from dataclasses import dataclass
 from typing import Any, Mapping
 
 import httpx
+import simplejson as json_codec
 
 from ._version import __version__
 from .auth import OAuthTokenManager
@@ -73,7 +74,7 @@ class APIClient:
                     method,
                     url,
                     params=params,
-                    json=json,
+                    content=json_codec.dumps(json, use_decimal=True) if json is not None else None,
                     headers=headers,
                 )
             except httpx.HTTPError as exc:
